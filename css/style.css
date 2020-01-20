@@ -1,0 +1,21 @@
+/*
+Budji by Wajisan
+*/
+
+html,
+body {
+    height: -webkit-fill-available;
+}
+
+.bill label {
+    padding-right: 23px;
+    margin-bottom: 0;
+}
+
+.positive-color {
+    color: #22ca22;
+}
+
+.negative-color {
+    color: #ff4747;
+}
