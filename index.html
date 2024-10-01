@@ -1,0 +1,120 @@
+<!doctype html>
+
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Budji - Simulateur de budget</title>
+    <meta name="description" content="Budji">
+    <meta name="author" content="SiteApp">
+
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="stylesheet" href="css/bootstrap.min.css?v=1.0">
+    <link rel="stylesheet" href="css/style.css?v=1.0">
+
+</head>
+
+<body>
+
+    <div id="app">
+        <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
+            <h5 class="my-0 mr-md-auto font-weight-normal">Budji</h5>
+            <h5 class="my-0 mr-md-auto font-weight-normal align-right cursor" v-on:click="showImport = !showImport">Import</h5>
+        </div>
+        <span v-if="showImport">
+            <input placeholder="Insérer JSON ici" @change="setNeedSave()"  v-model="importValue" type="text" class="form-control" />
+            <button type="button" class="btn btn-secondary align-right" v-on:click="importStorage(importValue)">Import</button>
+        </span>
+        <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+            <h1 class="display-4">Budji</h1>
+            <p class="lead">Conçu pour vous aider à gérer vos budgets, réels ou fictifs.</p>
+            <div class="card mb-4 box-shadow head-app">
+                <div class="card-header">
+                    <h4 class="my-0 font-weight-normal">Total restant</h4>
+                </div>
+                <div class="card-body">
+                    <span v-bind:class="[getColor(getAllTotal())]">{{getAllTotal()}}</span><small class="text-muted"> €</small></h2>
+                </div>
+            </div>
+            <button type=" button" class="btn btn-lg btn-outline-secondary" v-on:click="addTable()">Ajouter un carnet</button>
+            <button type=" button" class="btn btn-lg btn-outline-secondary" v-bind:class="{'needSave': needSave}" v-on:click="setLocalStorage()">Sauvegarde <span v-if="needSave">nécessaire</span></button>
+        </div>
+        <div class="container">
+            <div class="card-deck mb-3 text-center">
+                <div class="card mb-4 box-shadow" v-for="(table, key) in tables">
+                    <div class="card-header" v-bind:class="{dontCountMe: !table.countMe}" v-on:click="countMe(key)">
+                        <h4 class="my-0 font-weight-normal">{{table.name}}</h4>
+                    </div>
+                    <div class="card-body">
+                        <p class="font-italic font-weight-light" v-if="!table.countMe">Ce budget n'est pas compté</p>
+                        <h1 class="card-title pricing-card-title"><span v-bind:class="[getColor(total(table.bills))]">{{total(table.bills)}}</span><small class="text-muted">€</small></h1>
+                        <ul class="list-unstyled mt-3 mb-4 bill">
+                            <li v-for="bill in table.bills" v-bind:class="[getColor(bill.value)]">
+                                <label>{{bill.label}}</label>{{bill.value}}€
+                            </li>
+                        </ul>
+                        <button type="button" class="btn btn-lg btn-outline-secondary" v-on:click="renderModal(table, key)">Modifier</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!--  MODAL  -->
+        <div v-if="showModal">
+            <transition name="modal">
+                <div class="modal-mask">
+                    <div class="modal-wrapper">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Modifier</h4>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="hideModal()">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <h5>Titre</h5>
+                                    <input placeholder="Titre" v-model="currTable.name" class="form-control" @change="setNeedSave()" />
+                                    <ul class="list-unstyled mt-3 mb-4 bill">
+                                        <li v-for="(bill, key) in currTable.bills" v-bind:class="[getColor(bill.value)]">
+                                            <div class="col">
+                                                <input placeholder="nom" @change="setNeedSave()" v-model="bill.label" class="form-control" />
+                                                <input placeholder="valeur" @change="setNeedSave()" v-model="bill.value" type="number" class="form-control" />
+                                                <button type="button" class="btn btn-secondary" v-on:click="removeElemInList(currTableKey, key)">X</button>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                    <div>
+                                        <h5>Ajouter une valeur</h5>
+                                        <div class="col">
+                                            <input placeholder="nom" @change="setNeedSave()" v-model="newLabel" class="form-control" />
+                                            <input placeholder="valeur" type="number" @change="setNeedSave()" v-model="newValue" class="form-control" />
+                                            <button type="button" class="btn btn-secondary" v-on:click="addValue()">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" v-on:click="removeElem(currTableKey)">Supprimer</button>
+                                    <button type="button" class="btn btn-primary" v-on:click="hideModal()">Fermer</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </transition>
+        </div>
+        <!--END MODAL-->
+    </div>
+    <div>
+        <!--<script src="https://cdn.jsdelivr.net/npm/vue"></script>-->
+	<!--<script src="https://unpkg.com/vue@3"></script>-->
+	<!--<script type="module">import { Vue } from 'https://unpkg.com/vue@3';</script>-->
+	<script src="https://unpkg.com/vue@2.5.13/dist/vue.min.js" ></script>
+        <script src="js/main.js"></script>
+    </div>
+</body>
+
+</html>

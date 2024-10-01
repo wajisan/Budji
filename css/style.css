@@ -1,0 +1,110 @@
+/*
+Budji by Wajisan
+*/
+
+html,
+body {
+    height: -webkit-fill-available;
+}
+
+.bill label {
+    padding-right: 23px;
+    margin-bottom: 0;
+}
+
+.positive-color {
+    color: #22ca22;
+}
+
+.negative-color {
+    color: #ff4747;
+}
+
+.modal-mask {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #000000A4;
+}
+
+.dontCountMe {
+    background-color: grey;
+}
+
+.card-header {
+    cursor: pointer;
+}
+
+.card-header:hover {
+    border: solid 1px black;
+}
+
+.head-app .card-header:hover {
+    border: 0px;
+}
+
+.modal-dialog {
+    margin: auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    height: min-content;
+}
+
+.head-app {
+    max-width: 339px;
+    margin: auto;
+}
+
+.head-app .card-body {
+    font-size: 43px;
+}
+
+.head-app .card-header {
+    cursor: inherit;
+}
+
+.modal-body .col {
+    display: flex;
+    padding: inherit;
+}
+
+.modal-body li {
+    padding: 2px;
+}
+
+.modal-body .col * {
+    margin-left: 5px;
+}
+
+.needSave {
+    background-color: #af2534;
+    ;
+    color: white;
+}
+
+.cursor {
+    cursor: pointer;
+}
+
+.align-right {
+    margin: 0;
+    text-align: right;
+    margin-right: 0 !important;
+    max-width: 110px;
+    position: absolute;
+    right: 8px;
+    font-size: 15px;
+}
+
+@media (min-width: 576px) {
+    .card-deck .card {
+        min-width: 320px;
+    }
+}
