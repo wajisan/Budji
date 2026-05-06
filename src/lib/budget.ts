@@ -3,10 +3,13 @@ import { newNotebookId } from "./ids";
 
 export const STORAGE_KEY = "tables";
 
+/** Nom par défaut des carnets créés via « + » ; un carnet vide avec ce nom n’est pas écrit en stockage. */
+export const DEFAULT_NEW_NOTEBOOK_NAME = "Nouveau Budget";
+
 export type { LedgerSide };
 
 /** Nouveau carnet vide (avec id unique). */
-export function createEmptyNotebook(name = "Nouveau Budget"): BudgetTable {
+export function createEmptyNotebook(name = DEFAULT_NEW_NOTEBOOK_NAME): BudgetTable {
   return {
     id: newNotebookId(),
     name,
@@ -86,17 +89,17 @@ export function loadTables(): BudgetTable[] {
     const tables = parsed.map(normalizeTable).filter((t): t is BudgetTable => t !== null);
     if (tables.length === 0) return defaultTables();
 
-    if (lackedIds) {
-      saveTables(tables);
+    const persisted = filterTablesForPersistence(tables);
+    if (persisted.length === 0) return defaultTables();
+
+    if (lackedIds || persisted.length !== tables.length) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(persisted));
     }
-    return tables;
+
+    return persisted;
   } catch {
     return defaultTables();
   }
-}
-
-export function saveTables(tables: BudgetTable[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(tables));
 }
 
 export function importTablesJsonString(json: string): BudgetTable[] {
@@ -238,4 +241,19 @@ export function sanitizeBillsForSave(bills: Bill[]): Bill[] {
 
 export function sanitizeTableForSave(table: BudgetTable): BudgetTable {
   return { ...table, bills: sanitizeBillsForSave(table.bills) };
+}
+
+/** Carnet sans lignes utiles après nettoyage, encore nommé comme à la création → ne pas persister. */
+export function shouldPersistNotebook(table: BudgetTable): boolean {
+  const sanitized = sanitizeTableForSave(table);
+  if (sanitized.bills.length > 0) return true;
+  return table.name.trim() !== DEFAULT_NEW_NOTEBOOK_NAME;
+}
+
+export function filterTablesForPersistence(tables: BudgetTable[]): BudgetTable[] {
+  return tables.filter(shouldPersistNotebook);
+}
+
+export function saveTables(tables: BudgetTable[]): void {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(filterTablesForPersistence(tables)));
 }

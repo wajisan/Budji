@@ -6,9 +6,10 @@ type BudgetCardProps = {
   table: BudgetTable;
   onToggleCounted: (notebookId: string) => void;
   onEdit: (notebookId: string, side: LedgerSide) => void;
+  onOpenNotebookSettings: (notebookId: string) => void;
 };
 
-export function BudgetCard({ table, onToggleCounted, onEdit }: BudgetCardProps) {
+export function BudgetCard({ table, onToggleCounted, onEdit, onOpenNotebookSettings }: BudgetCardProps) {
   const subtotal = totalBills(table.bills);
   const excluded = !table.countMe;
   const incomeBills = filterBillsBySide(table.bills, "income");
@@ -22,22 +23,20 @@ export function BudgetCard({ table, onToggleCounted, onEdit }: BudgetCardProps) 
   return (
     <article className={`card${excluded ? " card--excluded" : ""}`}>
       <div
-        className="card__header"
-        onClick={() => onToggleCounted(table.id)}
+        className="card__header card__header--title-action"
+        role="button"
+        tabIndex={0}
+        onClick={(e) => {
+          e.stopPropagation();
+          onOpenNotebookSettings(table.id);
+        }}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
-            onToggleCounted(table.id);
+            onOpenNotebookSettings(table.id);
           }
         }}
-        role="button"
-        tabIndex={0}
-        aria-pressed={table.countMe}
-        aria-label={
-          table.countMe
-            ? `Carnet ${table.name}, inclus dans le total. Cliquer pour exclure.`
-            : `Carnet ${table.name}, exclu du total. Cliquer pour inclure.`
-        }
+        aria-label={`Modifier le carnet ${table.name || "sans titre"}`}
       >
         <h4 className="card__header-title" title={table.name || undefined}>
           {table.name}
@@ -92,7 +91,24 @@ export function BudgetCard({ table, onToggleCounted, onEdit }: BudgetCardProps) 
           </ul>
         </div>
       </div>
-      <div className="card__footer-total">
+      <div
+        className="card__footer-total card__footer-total--toggle"
+        role="button"
+        tabIndex={0}
+        onClick={() => onToggleCounted(table.id)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onToggleCounted(table.id);
+          }
+        }}
+        aria-pressed={table.countMe}
+        aria-label={
+          table.countMe
+            ? `Solde du carnet ${table.name}, inclus dans le total. Activer pour exclure ce carnet.`
+            : `Solde du carnet ${table.name}, exclu du total. Activer pour inclure ce carnet.`
+        }
+      >
         <span className="card__footer-total-label">solde</span>
         <span className={`card__footer-total-value ${amountClassName(subtotal)}`}>{subtotal}</span>
         <span className="currency">€</span>

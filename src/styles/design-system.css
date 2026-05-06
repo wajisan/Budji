@@ -9,20 +9,18 @@ html[data-theme="dark"] {
   --surface: #111111;
   --surface-2: #191919;
   --surface-3: #222222;
-  /* Base légèrement différente pour relief neumorphique */
-  /* Base légèrement différente pour relief neumorphique — moins « blanche » */
-  --neo-base: #1a2228;
-  --neo-elevated: #242b32;
-  --text-input-fill: #a8b0ba;
+  --neo-base: #151515;
+  --neo-elevated: #1a1a1a;
+  --text-input-fill: #ededed;
 
-  /* Neumorphisme : ombres symétriques (même offset) pour éviter le décalage visuel */
+  /* Neumorphisme : ombres symétriques */
   --neo-inset:
     inset 2px 2px 7px rgba(0, 0, 0, 0.48),
     inset -2px -2px 7px rgba(255, 255, 255, 0.04);
+  /* Focus champ : léger enfoncement uniquement — pas de bordure/teinte jaune */
   --neo-inset-focus:
-    inset 2px 2px 7px rgba(0, 0, 0, 0.48),
-    inset -2px -2px 7px rgba(255, 255, 255, 0.048),
-    0 0 0 1px rgba(245, 158, 11, 0.24);
+    inset 3px 3px 9px rgba(0, 0, 0, 0.55),
+    inset -2px -2px 8px rgba(255, 255, 255, 0.05);
   --neo-raised:
     2px 2px 6px rgba(0, 0, 0, 0.5),
     -2px -2px 6px rgba(255, 255, 255, 0.05);
@@ -325,6 +323,38 @@ textarea:focus-visible {
 
 .modal-animate-panel {
   animation: ds-modal-panel-in 0.2s ease-out both;
+}
+
+@keyframes ds-modal-overlay-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes ds-modal-panel-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+
+/* Sortie — croix, clic hors modale, Escape (voir EditModal.requestClose) */
+.modal-mask--exit {
+  animation: ds-modal-overlay-out var(--duration-modal-close, 0.18s) ease-in forwards;
+  pointer-events: none;
+}
+
+.modal-mask--exit .modal-content {
+  animation: ds-modal-panel-out var(--duration-modal-close, 0.18s) ease-in forwards;
 }
 
 /* —— Scrollbar (WebKit + Firefox) —— */

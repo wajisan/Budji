@@ -3,12 +3,14 @@ import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { AppHeader } from "./components/AppHeader";
 import { BudgetCard } from "./components/BudgetCard";
 import { EditModal } from "./components/EditModal";
+import { NotebookSettingsModal } from "./components/NotebookSettingsModal";
 import { HeroSection } from "./components/HeroSection";
 import { ImportPanel } from "./components/ImportPanel";
 import {
   cloneBudgetTable,
   createEmptyNotebook,
   defaultTables,
+  filterTablesForPersistence,
   importTablesJsonString,
   loadTables,
   sanitizeTableForSave,
@@ -27,6 +29,10 @@ export default function App() {
   const [editingTableId, setEditingTableId] = useState<string | null>(null);
   const [draftTable, setDraftTable] = useState<BudgetTable | null>(null);
   const [modalSide, setModalSide] = useState<LedgerSide | null>(null);
+  const [notebookSettingsTableId, setNotebookSettingsTableId] = useState<string | null>(null);
+  const [notebookSettingsDraft, setNotebookSettingsDraft] = useState<BudgetTable | null>(null);
+  /** Suppression retardée pour jouer une animation hors react-transition-group (exit fiable). */
+  const [exitingNotebookId, setExitingNotebookId] = useState<string | null>(null);
 
   const tablesRef = useRef(tables);
   tablesRef.current = tables;
@@ -58,7 +64,7 @@ export default function App() {
     try {
       const next = importTablesJsonString(importValue.trim());
       saveTables(next);
-      setTables(next);
+      setTables(filterTablesForPersistence(next));
       setShowImport(false);
       setImportValue("");
     } catch (e) {
@@ -83,6 +89,46 @@ export default function App() {
     setDraftTable(null);
   }, []);
 
+  const openNotebookSettings = useCallback((notebookId: string) => {
+    const t = tablesRef.current.find((x) => x.id === notebookId);
+    if (t === undefined) return;
+    setNotebookSettingsDraft(cloneBudgetTable(t));
+    setNotebookSettingsTableId(notebookId);
+  }, []);
+
+  const closeNotebookSettings = useCallback(() => {
+    setNotebookSettingsTableId(null);
+    setNotebookSettingsDraft(null);
+  }, []);
+
+  const saveNotebookSettingsAndClose = useCallback(() => {
+    if (notebookSettingsTableId === null || notebookSettingsDraft === null) return;
+    const id = notebookSettingsTableId;
+    const saved = sanitizeTableForSave(notebookSettingsDraft);
+    setTables((prev) => {
+      const next = prev.map((t) => (t.id === id ? saved : t));
+      saveTables(next);
+      return next;
+    });
+    closeNotebookSettings();
+  }, [notebookSettingsTableId, notebookSettingsDraft, closeNotebookSettings]);
+
+  const handleNotebookSettingsUpdate = useCallback(
+    (next: BudgetTable) => {
+      if (notebookSettingsTableId === null) return;
+      if (next.id !== notebookSettingsTableId) return;
+      setNotebookSettingsDraft(next);
+    },
+    [notebookSettingsTableId]
+  );
+
+  const deleteNotebookFromSettings = useCallback(() => {
+    if (notebookSettingsTableId === null) return;
+    const id = notebookSettingsTableId;
+    closeNotebookSettings();
+    setExitingNotebookId(id);
+  }, [notebookSettingsTableId, closeNotebookSettings]);
+
   const saveModalAndClose = useCallback(() => {
     if (editingTableId === null || draftTable === null) return;
     const id = editingTableId;
@@ -104,16 +150,19 @@ export default function App() {
     [editingTableId]
   );
 
-  const handleDeleteTable = useCallback(() => {
-    if (editingTableId === null) return;
-    const id = editingTableId;
-    setTables((prev) => {
-      const next = prev.filter((t) => t.id !== id);
-      saveTables(next);
-      return next;
-    });
-    closeModal();
-  }, [editingTableId, closeModal]);
+  useEffect(() => {
+    if (exitingNotebookId === null) return;
+    const id = exitingNotebookId;
+    const tid = window.setTimeout(() => {
+      setTables((prev) => {
+        const next = prev.filter((t) => t.id !== id);
+        saveTables(next);
+        return next;
+      });
+      setExitingNotebookId(null);
+    }, CARD_TRANSITION_MS);
+    return () => window.clearTimeout(tid);
+  }, [exitingNotebookId]);
 
   if (!hydrated) {
     return null;
@@ -132,12 +181,20 @@ export default function App() {
       <div className="page-container">
         <TransitionGroup className="card-deck" component="div">
           {tables.map((table) => (
-            <CSSTransition key={table.id} timeout={CARD_TRANSITION_MS} classNames="card-tx">
-              <div className="card-tx-root">
+            <CSSTransition
+              key={table.id}
+              timeout={CARD_TRANSITION_MS}
+              classNames="card-tx"
+              exit={false}
+            >
+              <div
+                className={`card-tx-root${exitingNotebookId === table.id ? " card-tx-exiting" : ""}`}
+              >
                 <BudgetCard
                   table={table}
                   onToggleCounted={handleToggleCounted}
                   onEdit={openEdit}
+                  onOpenNotebookSettings={openNotebookSettings}
                 />
               </div>
             </CSSTransition>
@@ -151,7 +208,14 @@ export default function App() {
         onClose={closeModal}
         onSave={saveModalAndClose}
         onUpdate={handleDraftUpdate}
-        onDeleteTable={handleDeleteTable}
+      />
+      <NotebookSettingsModal
+        open={notebookSettingsTableId !== null && notebookSettingsDraft !== null}
+        table={notebookSettingsDraft}
+        onClose={closeNotebookSettings}
+        onSave={saveNotebookSettingsAndClose}
+        onUpdate={handleNotebookSettingsUpdate}
+        onDeleteNotebook={deleteNotebookFromSettings}
       />
     </div>
   );

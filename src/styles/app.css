@@ -76,7 +76,7 @@
 }
 
 .input-minimal:hover {
-  background: #1f2730;
+  background: #181818;
 }
 
 .input-minimal:focus,
@@ -229,6 +229,19 @@
   box-shadow: var(--neo-raised-hover), 0 0 0 2px var(--btn-danger-focus-ring);
 }
 
+/* Bouton + d’ajout de ligne — même gabarit que la poubelle */
+.btn-modal-inline {
+  flex-shrink: 0;
+  width: 2.125rem;
+  height: 2.125rem;
+  min-width: 2.125rem;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
 .btn-remove-line svg {
   display: block;
 }
@@ -288,24 +301,17 @@
   background: var(--surface-2);
 }
 
-.card__header--static {
-  cursor: default;
-}
-
-.card__header--static:hover {
-  background: transparent;
-}
-
-/* Carnet exclu du total : teinte nettement plus claire que les carnets comptés (#111) */
+/* Carnet exclu du total : plus atténué, montants neutres (pas vert/rouge), solde barré */
 .card--excluded {
+  opacity: 0.68;
   background: #2d2d2d;
   border-color: #4a4a4a;
-  color: #d8d8d8;
+  color: #c8c8c8;
 }
 
 .card--excluded .card__header {
   background: #363636;
-  color: #e8e8e8;
+  color: #dcdcdc;
   border-bottom-color: #4f4f4f;
 }
 
@@ -314,41 +320,43 @@
 }
 
 .card--excluded .card__body {
-  color: #d8d8d8;
+  color: #c8c8c8;
 }
 
-.card--excluded .card__column--income:hover {
-  background: rgba(134, 217, 168, 0.12);
-}
-
+.card--excluded .card__column--income:hover,
 .card--excluded .card__column--expense:hover {
-  background: rgba(245, 166, 166, 0.12);
+  background: rgba(255, 255, 255, 0.05);
 }
 
-.card--excluded .card__column--income:focus-visible {
-  box-shadow: inset 0 0 0 2px rgba(134, 217, 168, 0.35);
-}
-
+.card--excluded .card__column--income:focus-visible,
 .card--excluded .card__column--expense:focus-visible {
-  box-shadow: inset 0 0 0 2px rgba(245, 166, 166, 0.38);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.22);
 }
 
 .card--excluded .bill-list__item label {
-  color: #cfcfcf;
+  color: #b8b8b8;
   opacity: 1;
+}
+
+.card--excluded .bill-list__amount {
+  color: #a3a3a3;
 }
 
 .card--excluded .currency {
-  color: #bebebe;
+  color: #a3a3a3;
   opacity: 1;
 }
 
-.card--excluded .amount--positive {
-  color: #86d9a8;
+.card--excluded .amount--positive,
+.card--excluded .amount--negative {
+  color: #a3a3a3;
 }
 
-.card--excluded .amount--negative {
-  color: #f5a6a6;
+.card--excluded .card__footer-total-value,
+.card--excluded .card__footer-total .currency {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  color: #a3a3a3;
 }
 
 .card__header-title {
@@ -362,6 +370,16 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Clic / survol sur tout le bandeau titre (réglages carnet), pas seulement le texte */
+.card__header--title-action {
+  cursor: pointer;
+}
+
+.card__header--title-action:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px rgba(245, 158, 11, 0.45);
 }
 
 .card__body {
@@ -468,6 +486,25 @@
   font-size: var(--font-size-sm);
 }
 
+.card__footer-total--toggle {
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.12s ease;
+}
+
+.card__footer-total--toggle:hover {
+  background: var(--surface-2);
+}
+
+.card__footer-total--toggle:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px rgba(245, 158, 11, 0.35);
+}
+
+.card--excluded .card__footer-total--toggle:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
 .card__footer-total-label {
   font-size: var(--font-size-xs);
   text-transform: uppercase;
@@ -504,13 +541,13 @@
 
 .bill-list {
   list-style: none;
-  margin: var(--space-md) 0;
+  margin: var(--space-sm) 0;
   padding: 0;
   text-align: left;
 }
 
 .bill-list__item {
-  padding: 0.55rem 0.35rem;
+  padding: 0.28rem 0.35rem;
   font-size: var(--font-size-sm);
 }
 
@@ -519,7 +556,7 @@
 }
 
 .bill-list--modal .bill-list__item {
-  padding: 0.55rem 0.25rem;
+  padding: 0.28rem 0.25rem;
 }
 
 .bill-list__item label {
@@ -579,10 +616,29 @@
   transform: translateY(0);
 }
 
+/* Fermeture = inverse de l’ouverture (repart vers le bas + fade out) */
 .card-tx-exit-active {
   opacity: 0;
-  transform: translateY(-6px);
-  transition: opacity 210ms ease-in, transform 210ms ease-in;
+  transform: translateY(10px);
+  transition: opacity 215ms ease-in, transform 215ms ease-in;
+}
+
+/* Sortie forcée après « Supprimer carnet » (animation CSS, hors exit CSSTransition) */
+.card-tx-exiting {
+  animation: card-tx-leave 215ms ease-in forwards;
+  pointer-events: none;
+}
+
+@keyframes card-tx-leave {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(10px);
+  }
 }
 
 /* —— Modale —— */
@@ -608,6 +664,52 @@
 
 .modal-dialog--wide {
   max-width: min(36rem, 94vw);
+}
+
+.modal-dialog--notebook {
+  max-width: min(22rem, 94vw);
+}
+
+.modal-title--modal-readonly {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 1.65rem;
+  font-weight: var(--font-weight-normal);
+  letter-spacing: -0.02em;
+  line-height: var(--line-height-tight);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modal-body--notebook-settings {
+  padding-top: var(--space-sm);
+}
+
+.modal-settings-label {
+  display: block;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-label);
+  color: var(--text-subtle);
+  margin-bottom: var(--space-sm);
+}
+
+.modal-settings-title-input {
+  width: 100%;
+  font-size: 1.05rem;
+  padding: 0.65rem 0.85rem;
+}
+
+.modal-footer--notebook-settings {
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.modal-footer--single-save {
+  justify-content: flex-end;
 }
 
 .modal-content {
@@ -700,6 +802,10 @@
   border-bottom: 1px solid var(--border);
 }
 
+.modal-add-row .btn-modal-inline {
+  margin-left: auto;
+}
+
 .modal-add-row .input-minimal {
   flex: 1 1 100px;
   min-width: 0;
@@ -744,7 +850,7 @@
   align-items: center;
   gap: var(--space-sm);
   width: 100%;
-  padding: 0.45rem 0;
+  padding: 0.2rem 0;
 }
 
 .modal-row--bill input {

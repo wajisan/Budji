@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   amountClassName,
   appendBillForSide,
@@ -9,6 +9,8 @@ import {
 import type { BudgetTable, LedgerSide } from "../types";
 import { TrashIcon } from "./TrashIcon";
 
+const MODAL_CLOSE_MS = 180;
+
 type EditModalProps = {
   open: boolean;
   side: LedgerSide | null;
@@ -16,12 +18,14 @@ type EditModalProps = {
   onClose: () => void;
   onSave: () => void;
   onUpdate: (next: BudgetTable) => void;
-  onDeleteTable: () => void;
 };
 
-export function EditModal({ open, side, table, onClose, onSave, onUpdate, onDeleteTable }: EditModalProps) {
+export function EditModal({ open, side, table, onClose, onSave, onUpdate }: EditModalProps) {
   const [newLabel, setNewLabel] = useState("");
   const [newValue, setNewValue] = useState("");
+  const [closing, setClosing] = useState(false);
+  const closeTimerRef = useRef<number | null>(null);
+  const closingRef = useRef(false);
 
   useEffect(() => {
     if (open) {
@@ -30,23 +34,51 @@ export function EditModal({ open, side, table, onClose, onSave, onUpdate, onDele
     }
   }, [open, side]);
 
+  /** Réinitialise « closing » avant le premier paint lors d’une réouverture. */
+  useLayoutEffect(() => {
+    if (!open) return;
+    closingRef.current = false;
+    setClosing(false);
+    if (closeTimerRef.current !== null) {
+      window.clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  }, [open]);
+
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current !== null) {
+        window.clearTimeout(closeTimerRef.current);
+      }
+    };
+  }, []);
+
+  const requestClose = useCallback(() => {
+    if (!open || closingRef.current) return;
+    closingRef.current = true;
+    setClosing(true);
+    if (closeTimerRef.current !== null) window.clearTimeout(closeTimerRef.current);
+    closeTimerRef.current = window.setTimeout(() => {
+      closeTimerRef.current = null;
+      closingRef.current = false;
+      onClose();
+    }, MODAL_CLOSE_MS);
+  }, [open, onClose]);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") requestClose();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+  }, [open, requestClose]);
 
-  if (!open || !table || side === null) return null;
+  if (!table || side === null) return null;
+  if (!open && !closing) return null;
 
   const filteredBills = filterBillsBySide(table.bills, side);
   const sectionTitle = side === "income" ? "Revenus" : "Dépenses";
-
-  const updateName = (name: string) => {
-    onUpdate({ ...table, name });
-  };
 
   const updateBill = (fi: number, partial: { label?: string; value?: number | string }) => {
     const nextBills = mapBillAtFilteredIndex(table.bills, side, fi, (b) => {
@@ -83,11 +115,15 @@ export function EditModal({ open, side, table, onClose, onSave, onUpdate, onDele
   };
 
   const handleBackdropClick = () => {
-    onClose();
+    requestClose();
   };
 
   return (
-    <div className="modal-mask modal-animate-overlay" role="presentation" onClick={handleBackdropClick}>
+    <div
+      className={`modal-mask ${closing ? "modal-mask--exit" : "modal-animate-overlay"}`}
+      role="presentation"
+      onClick={handleBackdropClick}
+    >
       <div
         className="modal-dialog modal-dialog--wide"
         role="dialog"
@@ -95,17 +131,12 @@ export function EditModal({ open, side, table, onClose, onSave, onUpdate, onDele
         aria-labelledby="modal-carnet-title"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="modal-content modal-animate-panel">
+        <div className={`modal-content${closing ? "" : " modal-animate-panel"}`}>
           <div className="modal-header">
-            <input
-              id="modal-carnet-title"
-              className="modal-header__title-input input-minimal"
-              placeholder="Titre du carnet"
-              value={table.name}
-              onChange={(e) => updateName(e.target.value)}
-              aria-label="Titre du carnet"
-            />
-            <button type="button" className="modal-close" onClick={onClose} aria-label="Fermer sans enregistrer">
+            <h2 id="modal-carnet-title" className="modal-title modal-title--modal-readonly" title={table.name || undefined}>
+              {table.name || "Carnet"}
+            </h2>
+            <button type="button" className="modal-close" onClick={requestClose} aria-label="Fermer sans enregistrer">
               ×
             </button>
           </div>
@@ -126,7 +157,7 @@ export function EditModal({ open, side, table, onClose, onSave, onUpdate, onDele
                 value={newValue}
                 onChange={(e) => setNewValue(e.target.value)}
               />
-              <button type="button" className="btn btn--secondary" onClick={addBill}>
+              <button type="button" className="btn btn--secondary btn-modal-inline" onClick={addBill} aria-label="Ajouter la ligne">
                 +
               </button>
             </div>
@@ -156,10 +187,7 @@ export function EditModal({ open, side, table, onClose, onSave, onUpdate, onDele
               ))}
             </ul>
           </div>
-          <div className="modal-footer">
-            <button type="button" className="btn btn--danger btn--lg" onClick={onDeleteTable}>
-              Supprimer
-            </button>
+          <div className="modal-footer modal-footer--single-save">
             <button type="button" className="btn btn--success btn--lg modal-footer__save" onClick={onSave}>
               Sauvegarder
             </button>
