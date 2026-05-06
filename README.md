@@ -22,6 +22,15 @@ Simulateur de budget entièrement **côté client** : carnets (containers) avec 
 - `src/types.ts` — `Bill`, `BudgetTable`
 - `index.html` — point d’entrée Vite ; le montage React est dans `src/main.tsx`
 
+## Port HTTP (une seule source)
+
+1. Copier le modèle : `cp .env.example .env`
+2. Éditer **uniquement** `PORT` dans `.env` si besoin.
+
+Vite (`bun run dev`, `bun run preview`) lit ce fichier via `vite.config.ts`. **Docker Compose** utilise la même variable : le fichier `.env` à la racine du projet est pris en charge automatiquement pour l’interpolation `${PORT}` (mapping et variable passée au conteneur).
+
+Sans fichier `.env`, le port par défaut est **9012** (défini dans `.env.example` et en repli dans `vite.config.ts` / compose).
+
 ## Personnalisation visuelle
 
 Modifier **uniquement** `src/styles/design-system.css` pour le thème (variables `--color-*`, `--font-*`, `--radius-*`, etc.). `app.css` consomme ces variables.
@@ -33,7 +42,7 @@ bun install
 bun run dev
 ```
 
-Application : **http://localhost:9012** (port fixé dans `vite.config.ts` et scripts `package.json`).
+Application : après `bun run dev`, ouvrir **http://localhost:9012** si tu gardes `PORT=9012` dans `.env`, sinon remplace **9012** par la valeur de **`PORT`**.
 
 Build statique :
 
@@ -48,7 +57,7 @@ bun run preview   # sert aussi sur 9012
 docker compose up --build
 ```
 
-Même port **9012** (mapping hôte ↔ conteneur). Le `docker-compose` monte le répertoire courant pour le hot-reload en dev ; `node_modules` est un volume anonyme pour éviter d’écraser les deps installées dans l’image.
+Le mapping hôte ↔ conteneur suit **`PORT`** (fichier `.env` à la racine, défaut **9012**). Le `docker-compose` monte le répertoire courant pour le hot-reload en dev ; `node_modules` est un volume anonyme pour éviter d’écraser les deps installées dans l’image.
 
 ## Import JSON
 
