@@ -1,0 +1,10 @@
+services:
+  budji:
+    build: .
+    ports:
+      - "9012:9012"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
