@@ -1,54 +1,145 @@
 /**
- * Tokens visuels centralisés — modifier ici pour ajuster thème (couleurs, typo, rayons).
- * Les composants utilisent ces variables via var(--…).
+ * Design system — thème sombre minimaliste (finance).
+ * Tokens : modifier ici pour l’ensemble de l’app.
  */
-:root {
-  /* Typography */
-  --font-family-sans: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", sans-serif;
-  --font-size-xs: 0.8rem;
-  --font-size-sm: 0.95rem;
-  --font-size-base: 1rem;
-  --font-size-lg: 1.25rem;
-  --font-size-xl: 1.5rem;
-  --font-size-display: 2.125rem;
-  --font-size-total: 2.68rem;
-  --font-weight-normal: 400;
-  --font-weight-medium: 500;
-  --font-weight-bold: 600;
+:root,
+html[data-theme="dark"] {
+  /* —— Fond & surfaces —— */
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --surface-2: #191919;
+  --surface-3: #222222;
+  /* Base légèrement différente pour relief neumorphique */
+  /* Base légèrement différente pour relief neumorphique — moins « blanche » */
+  --neo-base: #1a2228;
+  --neo-elevated: #242b32;
+  --text-input-fill: #a8b0ba;
+
+  /* Neumorphisme : ombres symétriques (même offset) pour éviter le décalage visuel */
+  --neo-inset:
+    inset 2px 2px 7px rgba(0, 0, 0, 0.48),
+    inset -2px -2px 7px rgba(255, 255, 255, 0.04);
+  --neo-inset-focus:
+    inset 2px 2px 7px rgba(0, 0, 0, 0.48),
+    inset -2px -2px 7px rgba(255, 255, 255, 0.048),
+    0 0 0 1px rgba(245, 158, 11, 0.24);
+  --neo-raised:
+    2px 2px 6px rgba(0, 0, 0, 0.5),
+    -2px -2px 6px rgba(255, 255, 255, 0.05);
+  --neo-raised-hover:
+    3px 3px 8px rgba(0, 0, 0, 0.52),
+    -3px -3px 8px rgba(255, 255, 255, 0.058);
+  --neo-raised-active:
+    inset 2px 2px 5px rgba(0, 0, 0, 0.45),
+    inset -2px -2px 5px rgba(255, 255, 255, 0.04);
+
+  /* —— Bordures —— */
+  --border: #252525;
+  --border-light: #333333;
+  --scrollbar-thumb: #333333;
+  --scrollbar-thumb-hover: #a3a3a3;
+
+  /* —— Texte —— */
+  --text: #d8dde3;
+  --text-muted: #b4bbc4;
+  --text-subtle: #7d8691;
+
+  /* —— Actions succès (sauvegarde) —— */
+  --color-success: #4ade80;
+  --color-success-dim: #22c55e;
+  --color-success-hover-bg: rgba(74, 222, 128, 0.1);
+  --color-success-focus-ring: rgba(74, 222, 128, 0.2);
+
+  /* —— Accents & data viz —— */
+  --color-accent: #f59e0b;
+  --color-accent-hover-bg: rgba(245, 158, 11, 0.08);
+  --color-accent-focus-ring: rgba(245, 158, 11, 0.12);
+  --chart-blue-fill: #3b82f6;
+  --chart-blue-stroke: #60a5fa;
+  --chart-blue-hover-bg: rgba(96, 165, 250, 0.08);
+  --chart-red-fill: #ef4444;
+  --chart-red-stroke: #f87171;
+  --chart-grid: #1e1e1e;
+  --tooltip-bg: #1a1a1a;
+  --tooltip-border: #2a2a2a;
+  --overlay-black: #000000;
+
+  /* —— Montants (hors spec : lisibilité sur fond sombre) —— */
+  --color-positive: #4ade80;
+  --color-negative: #f87171;
+
+  /* —— Alias sémantiques (rétrocompat composants) —— */
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-light);
+  --color-primary: var(--color-accent);
+  --color-primary-hover: var(--color-accent-hover-bg);
+  --color-header-inactive: var(--surface-3);
+
+  /* —— Typographie —— */
+  --font-family-sans: "Geist Sans", "GeistSans", system-ui, -apple-system, sans-serif;
+  --font-size-root: 1.05em;
+  --line-height-body: 1.6;
+  --font-size-h1: 2rem;
+  --font-weight-h1: 300;
+  --letter-spacing-h1: -0.03em;
+  --line-height-h1: 1.2;
+  --font-size-h2: 1rem;
+  --font-weight-h2: 450;
+  --letter-spacing-h2: -0.01em;
+
+  --font-size-xs: 0.72rem;
+  --font-size-sm: 0.8125rem;
+  --font-size-input: 0.875rem;
+  --font-size-table: 0.8125rem;
+  --font-size-table-head: 0.7rem;
+  --font-weight-normal: 350;
+  --font-weight-medium: 475;
+  --font-weight-bold: 560;
   --line-height-tight: 1.2;
-  --line-height-body: 1.5;
+  --letter-spacing-label: 0.06em;
 
-  /* Semantic colors */
-  --color-bg: #f8f9fa;
-  --color-surface: #ffffff;
-  --color-text: #212529;
-  --color-text-muted: #6c757d;
-  --color-border: #dee2e6;
-  --color-border-strong: #000000;
-
-  /* Amounts */
-  --color-positive: #22ca22;
-  --color-negative: #ff4747;
-
-  /* UI accents */
-  --color-primary: #0d6efd;
-  --color-primary-hover: #0b5ed7;
-  --color-secondary-bg: #ffffff;
-  --color-secondary-border: #6c757d;
-  --color-secondary-text: #6c757d;
-  --color-danger-bg: #af2534;
-  --color-danger-text: #ffffff;
-  --color-header-inactive: #808080;
-
-  /* Modal / overlay */
-  --color-overlay: rgba(0, 0, 0, 0.65);
-  --shadow-card: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-  --shadow-header: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05);
-
-  /* Layout */
-  --radius-sm: 4px;
+  /* —— Rayons —— */
+  --radius-btn: 6px;
+  --radius-input: 6px;
+  --radius-rounded: 8px;
+  --radius-sm: 6px;
   --radius-md: 6px;
   --radius-lg: 8px;
+  --scrollbar-thumb-radius: 2px;
+
+  /* —— Transitions —— */
+  --transition-ui: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+
+  /* —— Ombres & modale —— */
+  --shadow-modal-panel:
+    0 20px 48px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.03);
+  --shadow-card: none;
+  --shadow-header-translucent: none;
+
+  --color-overlay: rgba(10, 10, 10, 0.72);
+  --modal-panel-padding-y: 1.25rem;
+  --modal-panel-padding-x: 1.35rem;
+  --modal-max-width: 26rem;
+
+  /* —— Alertes soft (ambre) —— */
+  --alert-warning-bg: rgba(245, 158, 11, 0.07);
+  --alert-warning-border: rgba(245, 158, 11, 0.28);
+  --alert-warning-bg-soft: rgba(245, 158, 11, 0.06);
+
+  /* Tableaux */
+  --table-row-zebra: rgba(255, 255, 255, 0.02);
+  --table-row-hover: rgba(255, 255, 255, 0.03);
+  --table-highlight-month-bg: rgba(96, 165, 250, 0.1);
+  --table-highlight-month-text: #60a5fa;
+  --table-highlight-prepay-bg: rgba(245, 158, 11, 0.1);
+  --table-highlight-prepay-text: #f59e0b;
+
+  /* Layout (inchangé) */
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
   --space-md: 1rem;
@@ -57,6 +148,21 @@
   --max-width-content: 1140px;
   --max-width-total-card: 339px;
   --min-width-budget-card: 320px;
+  --font-size-display: var(--font-size-h1);
+  --font-size-total: 2.1rem;
+  --font-size-xl: 1.125rem;
+  --font-size-lg: 1.05rem;
+  --font-size-base: 1rem;
+
+  /* Danger bouton */
+  --btn-danger-text: #f87171;
+  --btn-danger-border: rgba(248, 113, 113, 0.45);
+  --btn-danger-hover-bg: rgba(239, 68, 68, 0.1);
+  --btn-danger-hover-text: #fca5a5;
+  --btn-danger-hover-border: rgba(248, 113, 113, 0.65);
+  --btn-danger-focus-ring: rgba(239, 68, 68, 0.22);
+
+  color-scheme: dark;
 }
 
 *,
@@ -65,27 +171,251 @@
   box-sizing: border-box;
 }
 
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 html,
 body {
   margin: 0;
   min-height: 100%;
   height: -webkit-fill-available;
   font-family: var(--font-family-sans);
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-root);
+  font-weight: var(--font-weight-normal);
   line-height: var(--line-height-body);
-  color: var(--color-text);
-  background: var(--color-bg);
+  color: var(--text);
+  background: var(--bg);
 }
 
 #root {
   min-height: 100vh;
 }
 
+h1 {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-h1);
+  letter-spacing: var(--letter-spacing-h1);
+  line-height: var(--line-height-h1);
+  color: var(--text);
+  margin: 0;
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-h2);
+  letter-spacing: var(--letter-spacing-h2);
+  color: var(--text);
+  margin: 0;
+}
+
 button,
-input {
+input,
+textarea {
   font: inherit;
 }
 
 button {
   cursor: pointer;
+}
+
+/* —— Labels formulaires (petits) —— */
+.label-field,
+.form-label {
+  display: block;
+  color: var(--text);
+  opacity: 0.92;
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-label);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--space-xs);
+}
+
+/* —— Inputs —— */
+input:not([type="checkbox"]):not([type="radio"]),
+textarea {
+  background: var(--neo-base);
+  border: none;
+  color: var(--text-input-fill);
+  font-weight: var(--font-weight-normal);
+  border-radius: var(--radius-input);
+  font-size: var(--font-size-input);
+  box-shadow: var(--neo-inset);
+}
+
+input:not([type="checkbox"]):not([type="radio"])::placeholder,
+textarea::placeholder {
+  color: var(--text-subtle);
+}
+
+input:not([type="checkbox"]):not([type="radio"]):focus-visible,
+textarea:focus-visible {
+  outline: none;
+  box-shadow: var(--neo-inset-focus);
+}
+
+/* —— Rayons utilitaires —— */
+.rounded {
+  border-radius: var(--radius-rounded);
+}
+
+/* —— Cartes / sections bordées —— */
+.surface-bordered {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-rounded);
+}
+
+/* —— Alertes soft —— */
+.alert-soft-warning {
+  background: var(--alert-warning-bg);
+  border: 1px solid var(--alert-warning-border);
+  border-radius: var(--radius-rounded);
+  color: var(--text);
+}
+
+.alert-soft-warning--subtle {
+  background: var(--alert-warning-bg-soft);
+  border: 1px solid var(--alert-warning-border);
+}
+
+/* —— Animations entrée de vue —— */
+@keyframes ds-reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal-in {
+  animation: ds-reveal-in 0.18s ease-out both;
+}
+
+/* —— Modale : overlay —— */
+@keyframes ds-modal-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* —— Modale : panneau —— */
+@keyframes ds-modal-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-animate-overlay {
+  animation: ds-modal-overlay-in 0.18s ease-out both;
+}
+
+.modal-animate-panel {
+  animation: ds-modal-panel-in 0.2s ease-out both;
+}
+
+/* —— Scrollbar (WebKit + Firefox) —— */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: var(--scrollbar-thumb-radius);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* —— Tableaux (réutilisables) —— */
+.table-ds {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-table);
+  color: var(--text);
+}
+
+.table-ds thead th {
+  font-size: var(--font-size-table-head);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-label);
+  font-weight: var(--font-weight-medium);
+  color: var(--text);
+  opacity: 0.9;
+  text-align: left;
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--border);
+}
+
+.table-ds tbody td {
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--border);
+}
+
+.table-ds tbody tr:nth-child(even) {
+  background: var(--table-row-zebra);
+}
+
+.table-ds tbody tr:hover {
+  background: var(--table-row-hover);
+}
+
+.table-ds__month-current {
+  background: var(--table-highlight-month-bg);
+  color: var(--table-highlight-month-text);
+  font-weight: var(--font-weight-bold);
+}
+
+.table-ds__prepay {
+  background: var(--table-highlight-prepay-bg);
+  color: var(--table-highlight-prepay-text);
+  font-weight: var(--font-weight-bold);
+}
+
+/* —— Groupes de boutons (toggle graphique, etc.) —— */
+.btn-group {
+  display: inline-flex;
+  align-items: stretch;
+}
+
+.btn-group .btn {
+  border-radius: 0;
+}
+
+.btn-group .btn:first-child {
+  border-top-left-radius: var(--radius-btn);
+  border-bottom-left-radius: var(--radius-btn);
+}
+
+.btn-group .btn:last-child {
+  border-top-right-radius: var(--radius-btn);
+  border-bottom-right-radius: var(--radius-btn);
+}
+
+.btn-group .btn + .btn {
+  margin-left: -1px;
+}
+
+.btn-group .btn-blue:not(:last-child) {
+  border-right-color: var(--chart-blue-stroke);
 }

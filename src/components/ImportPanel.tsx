@@ -10,7 +10,7 @@ export function ImportPanel({ visible, value, onChange, onImport }: ImportPanelP
   return (
     <div className="import-panel">
       <input
-        className="import-panel__input"
+        className="import-panel__input input-minimal"
         placeholder="Insérer JSON ici"
         value={value}
         onChange={(e) => onChange(e.target.value)}

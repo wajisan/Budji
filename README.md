@@ -16,7 +16,7 @@ Simulateur de budget entièrement **côté client** : carnets (containers) avec 
 
 ## Structure utile
 
-- `src/App.tsx` — état global (carnets, modal, import, flag sauvegarde)
+- `src/App.tsx` — état global (carnets, brouillon modale, import) ; persistance auto sur la plupart des actions
 - `src/components/` — UI découpée (`BudgetCard`, `EditModal`, `HeroSection`, etc.)
 - `src/lib/budget.ts` — parsing / totaux / import JSON / persistance
 - `src/types.ts` — `Bill`, `BudgetTable`
